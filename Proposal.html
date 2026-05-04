@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>ISO Detective — Game Design Proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Courier+Prime&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #2a2a2a; font-family: 'Inter', sans-serif; color: #1a1a1a; }
+  .page { width: 210mm; min-height: 297mm; background: #fdfaf3; margin: 24px auto; padding: 24mm 22mm;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35); position: relative; }
+  .page::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity: 0.04; mix-blend-mode: multiply; }
+  h1, h2, h3 { font-family: 'Playfair Display', serif; }
+  h1 { font-size: 38pt; margin: 0; line-height: 1.05; letter-spacing: 0.02em; }
+  h1 em { color: #b45309; font-style: italic; }
+  h2 { font-size: 18pt; margin: 22px 0 10px; border-bottom: 1px solid #b45309; padding-bottom: 6px; }
+  h3 { font-size: 13pt; margin: 14px 0 4px; color: #2a1d0e; }
+  p, li { font-size: 10.5pt; line-height: 1.55; color: #2a2a2a; }
+  .eyebrow { font-family: 'Courier Prime', monospace; color: #b45309; font-size: 9pt;
+    letter-spacing: 0.25em; text-transform: uppercase; }
+  .meta { display: flex; justify-content: space-between; margin-top: 12px;
+    font-family: 'Courier Prime', monospace; font-size: 9pt; color: #5b4520;
+    border-top: 2px double #b45309; border-bottom: 2px double #b45309; padding: 6px 0; }
+  .pno { position: absolute; bottom: 14mm; right: 22mm; font-family: 'Courier Prime', monospace;
+    font-size: 9pt; color: #5b4520; letter-spacing: 0.2em; }
+  .footer { position: absolute; bottom: 14mm; left: 22mm; font-family: 'Courier Prime', monospace;
+    font-size: 9pt; color: #5b4520; letter-spacing: 0.15em; }
+  .stamp { position: absolute; top: 18mm; right: 18mm; transform: rotate(-8deg);
+    font-family: 'Courier Prime', monospace; font-weight: 700; color: #b91c1c;
+    border: 3px double #b91c1c; padding: 4px 12px; font-size: 12pt; letter-spacing: 0.15em; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.5pt; }
+  th { text-align: left; background: #f4ead6; border: 1px solid #b45309; padding: 6px 8px;
+    font-family: 'Courier Prime', monospace; font-size: 8.5pt; letter-spacing: 0.1em; text-transform: uppercase; }
+  td { border: 1px solid #d6c898; padding: 6px 8px; vertical-align: top; }
+  td.tech { font-family: 'Courier Prime', monospace; font-size: 9pt; }
+  td.cat { font-family: 'Courier Prime', monospace; font-size: 8.5pt; color: #5b4520; }
+  .bullets { padding-left: 20px; }
+  .bullets li { margin-bottom: 4px; }
+  .obj { background: rgba(180, 83, 9, 0.06); border-left: 3px solid #b45309; padding: 10px 14px;
+    margin: 8px 0; font-size: 10pt; }
+  .quote { font-family: 'Playfair Display', serif; font-style: italic; font-size: 12pt;
+    color: #5b4520; margin: 12px 0; padding-left: 14px; border-left: 3px solid #b91c1c; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .scene-sketch { border: 1px solid #5b4520; background: #1a1209; aspect-ratio: 16/10;
+    position: relative; margin: 10px 0 6px; }
+  .caption { font-family: 'Courier Prime', monospace; font-size: 9pt; color: #5b4520;
+    text-align: center; }
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; margin: 0; }
+    @page { size: A4; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div class="stamp">CLASSIFIED</div>
+  <div class="eyebrow">GAME DESIGN PROPOSAL · ITOISQS · SOFTWARE QUALITY STANDARDS</div>
+  <h1>ISO <em>Detective</em></h1>
+  <p style="font-family:'Playfair Display',serif;font-style:italic;font-size:13pt;margin-top:6px;">A noir investigation into the test techniques that weren't run.</p>
+  <div class="meta">
+    <span>Course · ITOISQS</span>
+    <span>Standard · ISO/IEC 29119-4 : 2021</span>
+    <span>Format · Browser web game</span>
+    <span>Session · 10–15 min</span>
+  </div>
+
+  <h2>1. Game overview</h2>
+  <h3>Title, genre, platform, audience</h3>
+  <p><b>ISO Detective</b> is a single-player, point-and-click <b>educational mystery game</b> delivered as a self-contained browser application (HTML/CSS/JS, no install). Target audience: undergraduate software engineering and quality assurance students approaching ISO/IEC 29119-4 for the first time. Designed for live classroom delivery — projected by the instructor or played individually on student laptops or tablets.</p>
+
+  <h3>Learning objectives (measurable, ISO 29119-4-aligned)</h3>
+  <div class="obj">After one full session a student is able to:
+    <ol class="bullets">
+      <li><b>Classify</b> any ISO/IEC 29119-4 technique as Black-Box, White-Box, or Experience-Based with ≥85% accuracy.</li>
+      <li><b>Select</b> the correct technique for a described testing scenario (e.g. defined input ranges → EP + BVA).</li>
+      <li><b>Explain</b> why omitting a specific technique causes a specific category of defect.</li>
+      <li><b>Distinguish</b> between three frequently confused pairs: EP vs BVA, Decision Table vs State Transition, Exploratory vs Error Guessing.</li>
+      <li><b>Map</b> a real-world software failure to the missing technique(s) that would have prevented it.</li>
+    </ol>
+  </div>
+
+  <h3>Game concept</h3>
+  <p>The player is a detective summoned to the scene of a software failure. Each "case" is a fictional company whose product caused real harm — wrong fund transfers at a bank, dangerous medication doses at a hospital, miscalibrated GPS in commercial aviation. The detective doesn't read about the bug; they walk the scene, find evidence, and reason backwards to the missing test technique. The game's atmosphere is medium noir: rain on the window, a single amber lamp, classified folders, polaroid evidence, a cork suspect-board. The pedagogy is hidden inside the genre — you are not "studying ISO 29119-4," you are <i>solving cases</i> whose every clue is one ISO clause.</p>
+  <p>Three cases of escalating difficulty cover the full ISO/IEC 29119-4 technique catalogue: Black-Box (EP, BVA, Decision Table, State Transition, Cause-Effect Graphing, Pairwise, Classification Tree), White-Box (Statement, Branch, Condition, MC/DC, Path), and Experience-Based (Error Guessing, Exploratory, Checklist-Based). A persistent in-game <i>Field Guide</i> contains every clause, definition, and worked example. A <i>Verdict</i> screen at the end of each case replays every wrong link as a one-paragraph mini-lesson.</p>
+
+  <div class="footer">ISO Detective · GDP · v1</div>
+  <div class="pno">page 1 / 3</div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="eyebrow">PAGE 2 · MECHANICS &amp; PEDAGOGY</div>
+  <h1 style="font-size:28pt;">Mechanics &amp; <em>Pedagogy</em></h1>
+
+  <h2>2. How the game teaches</h2>
+  <h3>The evidence → consequence → technique loop</h3>
+  <p>Every hotspot in a scene encodes one ISO clause. The hotspot is a recognisable artefact (a test plan, a whiteboard, a sticky note, a code printout) showing what <i>was</i> done. The evidence card it produces shows the <i>consequence</i> — not in abstract terms but in the loss it caused: 847 fraudulent transfers, an accepted -5mg dose, a flight diverted at 179.9999° longitude. The student is then asked to link the evidence to the formal technique that would have prevented it. This forces the student to reason from observable harm back to the underlying clause — the same direction practising testers must reason in post-mortems.</p>
+
+  <h3>Wrong-answer system as the primary teaching mechanism</h3>
+  <p>Every hotspot has both a correct technique and at least one <b>plausible-but-incorrect</b> trap. When a student picks a trap, the game does not shame; it teaches. A noir-styled "Wrong lead, Detective" panel opens, side-by-side comparing the chosen technique and the correct technique, each with its ISO clause reference. The student then tries again at reduced score. This converts wrong answers into <b>compare-and-contrast learning events</b> — the deepest moments of the game, by design.</p>
+  <div class="quote">"Wrong lead, Detective. You picked Branch Testing. The evidence points to Condition Testing — here's why."</div>
+
+  <h3>Rule outline</h3>
+  <ul class="bullets">
+    <li>Each case opens with a folder slamming onto the desk; the player is briefed in 30 seconds.</li>
+    <li>Investigate the scene by clicking 8–12 amber-pulsing hotspots; each yields one polaroid evidence card.</li>
+    <li>On the suspect-board, drag (click-link) each evidence card to one of the case's candidate techniques.</li>
+    <li>The Field Guide is always one tap away — the game rewards understanding, not memorisation.</li>
+    <li>After all three cases, the Verdict screen issues a final detective rank and replays every cold case.</li>
+  </ul>
+
+  <h3>Scoring &amp; progression</h3>
+  <table>
+    <tr><th>Component</th><th>Pts</th><th>Notes</th></tr>
+    <tr><td>Evidence discovered</td><td>5 each</td><td>Encourages full scene exploration.</td></tr>
+    <tr><td>Correct first-attempt link</td><td>15</td><td>No penalty for opening Field Guide first.</td></tr>
+    <tr><td>Correct second-attempt link</td><td>8</td><td>After one trap; learning still credited.</td></tr>
+    <tr><td>Speed bonus</td><td>0–10</td><td>Proportional to time remaining.</td></tr>
+    <tr><td>Perfect-case bonus</td><td>20</td><td>All evidence + every link first try.</td></tr>
+  </table>
+  <p><b>Detective ranks:</b> Rookie (0–40%), Senior Investigator (41–70%), Chief Detective (71–90%), Legendary Detective (91–100%).</p>
+
+  <div class="footer">ISO Detective · GDP · v1</div>
+  <div class="pno">page 2 / 3</div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+  <div class="eyebrow">PAGE 3 · CASE DESIGN &amp; CONTENT COVERAGE</div>
+  <h1 style="font-size:28pt;">Case design &amp; <em>coverage</em></h1>
+
+  <h2>3. ISO/IEC 29119-4 coverage matrix</h2>
+  <table>
+    <tr><th>Technique</th><th>Cat.</th><th>Case</th><th>Assessed by</th></tr>
+    <tr><td class="tech">Equivalence Partitioning</td><td class="cat">Black-Box</td><td>1, 2</td><td>Linking happy-path-only test plan, dosage form</td></tr>
+    <tr><td class="tech">Boundary Value Analysis</td><td class="cat">Black-Box</td><td>1, 2, 3</td><td>Transfer cap whiteboard, weight field, longitude wraparound</td></tr>
+    <tr><td class="tech">Decision Table Testing</td><td class="cat">Black-Box</td><td>1</td><td>Spreadsheet of single-condition tests</td></tr>
+    <tr><td class="tech">State Transition Testing</td><td class="cat">Black-Box</td><td>1, 2</td><td>Suspended-account Slack, allergy-bypass flag</td></tr>
+    <tr><td class="tech">Cause-Effect Graphing</td><td class="cat">Black-Box</td><td>2</td><td>Causes/effects listed but never graphed</td></tr>
+    <tr><td class="tech">Pairwise Testing</td><td class="cat">Black-Box</td><td>2</td><td>15 of 200+ drug combinations tested</td></tr>
+    <tr><td class="tech">Classification Tree Method</td><td class="cat">Black-Box</td><td>2</td><td>Tree with three untested allergy leaves</td></tr>
+    <tr><td class="tech">Statement Testing</td><td class="cat">White-Box</td><td>1, 3</td><td>34% coverage report, dead nav block</td></tr>
+    <tr><td class="tech">Branch Testing</td><td class="cat">White-Box</td><td>1, 2, 3</td><td>Currency false branch, allergy-interlock branch, geofence false branch</td></tr>
+    <tr><td class="tech">Condition Testing</td><td class="cat">White-Box</td><td>3</td><td>(altitude &gt; 1000 &amp;&amp; !warning_active) split</td></tr>
+    <tr><td class="tech">MC/DC</td><td class="cat">White-Box</td><td>3</td><td>Empty DO-178C verification matrix</td></tr>
+    <tr><td class="tech">Path Testing</td><td class="cat">White-Box</td><td>3</td><td>Sunny-weather sim path; identical unit tests</td></tr>
+    <tr><td class="tech">Error Guessing</td><td class="cat">Experience</td><td>1</td><td>"Concurrent transfers — skip" post-it</td></tr>
+    <tr><td class="tech">Exploratory Testing</td><td class="cat">Experience</td><td>1, 2</td><td>No charter window scheduled</td></tr>
+    <tr><td class="tech">Checklist-Based Testing</td><td class="cat">Experience</td><td>2, 3</td><td>Sign-off email; ignored DO-178C step</td></tr>
+  </table>
+
+  <div class="grid2">
+    <div>
+      <h3>Scene 1 hotspot map (sketch)</h3>
+      <div class="scene-sketch">
+        <svg viewBox="0 0 320 200" style="width:100%;height:100%;">
+          <rect width="320" height="200" fill="#1a1209"/>
+          <ellipse cx="120" cy="100" rx="120" ry="60" fill="#F59E0B" opacity="0.18"/>
+          <rect x="60" y="120" width="200" height="50" fill="#3a2818" stroke="#5b4520"/>
+          <rect x="50" y="20" width="80" height="60" fill="#fdfaf3" opacity="0.9"/>
+          <rect x="160" y="20" width="60" height="50" fill="#7a1f1f" opacity="0.8"/>
+          <rect x="240" y="40" width="50" height="50" fill="#f5d76e" opacity="0.9" transform="rotate(6 265 65)"/>
+          {[
+            {x:18,y:62},{x:42,y:28},{x:64,y:71},{x:78,y:42},
+            {x:28,y:38},{x:8,y:22},{x:56,y:18},{x:88,y:78}
+          ].map((p,i)=>(
+            <g key={i} transform={`translate(${p.x*3.2} ${p.y*2})`}>
+              <circle r="8" fill="#F59E0B"/>
+              <text y="3" text-anchor="middle" font-family="monospace" font-size="10" fill="#1a1209" font-weight="700">{i+1}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+      <div class="caption">Case 1 · Isometric office · 8 hotspots</div>
+    </div>
+    <div>
+      <h3>Extensibility</h3>
+      <p>Cases live in a single JSON-shaped data module: id, title, severity, summary, hotspot list (position, evidence body, ISO clause, correct technique, trap techniques), and the Field Guide entries are shared. A future cohort can author a fourth case (e.g. <i>The TrainSim Signal Mishap</i>) by adding ≈120 lines to that module — no new screens, animations, or styling required. Suggested student exercise: <b>"Author one hotspot end-to-end"</b> — pick a real CVE, write the evidence, identify the missing ISO 29119-4 technique, and submit a pull request to the cases module.</p>
+
+      <h3>Definition of done (delivered)</h3>
+      <ul class="bullets" style="font-size:9.5pt;">
+        <li>3 cases × 8–10 hotspots = 26 evidence/technique linkages</li>
+        <li>5 screens: Landing, Case File, Investigation, Verdict, Teacher Dashboard</li>
+        <li>Full Field Guide with all 15 techniques</li>
+        <li>Wrong-answer system with ISO-accurate trap explanations</li>
+        <li>Tweaks panel (animations, audio, timer, hints)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">ISO Detective · GDP · v1 · ITOISQS</div>
+  <div class="pno">page 3 / 3</div>
+</div>
+
+</body>
+</html>
