@@ -66,7 +66,7 @@
     <span>Course · ITOISQS</span>
     <span>Standard · ISO/IEC 29119-4 : 2021</span>
     <span>Format · Browser web game</span>
-    <span>Session · 10–15 min</span>
+    <span>Session · 12–18 min</span>
   </div>
 
   <h2>1. Game overview</h2>
@@ -86,7 +86,7 @@
 
   <h3>Game concept</h3>
   <p>The player is a detective summoned to the scene of a software failure. Each "case" is a fictional company whose product caused real harm — wrong fund transfers at a bank, dangerous medication doses at a hospital, miscalibrated GPS in commercial aviation. The detective doesn't read about the bug; they walk the scene, find evidence, and reason backwards to the missing test technique. The game's atmosphere is medium noir: rain on the window, a single amber lamp, classified folders, polaroid evidence, a cork suspect-board. The pedagogy is hidden inside the genre — you are not "studying ISO 29119-4," you are <i>solving cases</i> whose every clue is one ISO clause.</p>
-  <p>Three cases of escalating difficulty cover the full ISO/IEC 29119-4 technique catalogue: Black-Box (EP, BVA, Decision Table, State Transition, Cause-Effect Graphing, Pairwise, Classification Tree), White-Box (Statement, Branch, Condition, MC/DC, Path), and Experience-Based (Error Guessing, Exploratory, Checklist-Based). A persistent in-game <i>Field Guide</i> contains every clause, definition, and worked example. A <i>Verdict</i> screen at the end of each case replays every wrong link as a one-paragraph mini-lesson.</p>
+  <p>Three cases of escalating difficulty cover the full ISO/IEC 29119-4 technique catalogue: Black-Box (EP, BVA, Decision Table, State Transition, Cause-Effect Graphing, Pairwise, Classification Tree), White-Box (Statement, Branch, Condition, MC/DC, Path), and Experience-Based (Error Guessing, Exploratory, Checklist-Based). In the current frontend flow, students progress case-by-case through the same loop and receive a cumulative final verdict at the end of all cases. A persistent in-game <i>Field Guide</i> contains every clause, definition, and worked example.</p>
 
   <div class="footer">ISO Detective · GDP · v1</div>
   <div class="pno">page 1 / 3</div>
@@ -102,7 +102,7 @@
   <p>Every hotspot in a scene encodes one ISO clause. The hotspot is a recognisable artefact (a test plan, a whiteboard, a sticky note, a code printout) showing what <i>was</i> done. The evidence card it produces shows the <i>consequence</i> — not in abstract terms but in the loss it caused: 847 fraudulent transfers, an accepted -5mg dose, a flight diverted at 179.9999° longitude. The student is then asked to link the evidence to the formal technique that would have prevented it. This forces the student to reason from observable harm back to the underlying clause — the same direction practising testers must reason in post-mortems.</p>
 
   <h3>Wrong-answer system as the primary teaching mechanism</h3>
-  <p>Every hotspot has both a correct technique and at least one <b>plausible-but-incorrect</b> trap. When a student picks a trap, the game does not shame; it teaches. A noir-styled "Wrong lead, Detective" panel opens, side-by-side comparing the chosen technique and the correct technique, each with its ISO clause reference. The student then tries again at reduced score. This converts wrong answers into <b>compare-and-contrast learning events</b> — the deepest moments of the game, by design.</p>
+  <p>Every hotspot has both a correct technique and at least one <b>plausible-but-incorrect</b> trap. When a student picks a trap, the game opens a noir-styled "Wrong lead" panel that explains both why the selected technique does not fit and which technique should have been selected, with ISO references for each side. The student then retries at reduced score. This creates <b>compare-and-contrast learning moments</b> that clarify commonly confused techniques.</p>
   <div class="quote">"Wrong lead, Detective. You picked Branch Testing. The evidence points to Condition Testing — here's why."</div>
 
   <h3>Rule outline</h3>
@@ -111,7 +111,7 @@
     <li>Investigate the scene by clicking 8–12 amber-pulsing hotspots; each yields one polaroid evidence card.</li>
     <li>On the suspect-board, drag (click-link) each evidence card to one of the case's candidate techniques.</li>
     <li>The Field Guide is always one tap away — the game rewards understanding, not memorisation.</li>
-    <li>After all three cases, the Verdict screen issues a final detective rank and replays every cold case.</li>
+    <li>After each case verdict, the player continues to the next case and receives a final cumulative verdict after all cases.</li>
   </ul>
 
   <h3>Scoring &amp; progression</h3>
@@ -184,11 +184,11 @@
 
       <h3>Definition of done (delivered)</h3>
       <ul class="bullets" style="font-size:9.5pt;">
-        <li>3 cases × 8–10 hotspots = 26 evidence/technique linkages</li>
-        <li>5 screens: Landing, Case File, Investigation, Verdict, Teacher Dashboard</li>
+        <li>3 cases × 8–10 hotspots with progressive multi-case flow</li>
+        <li>Core flow screens: Landing, Case File, Investigation, Verdict, Final Summary, Teacher Dashboard</li>
         <li>Full Field Guide with all 15 techniques</li>
-        <li>Wrong-answer system with ISO-accurate trap explanations</li>
-        <li>Tweaks panel (animations, audio, timer, hints)</li>
+        <li>Wrong-answer compare panel with ISO-grounded trap explanations</li>
+        <li>Detective-rank scoring with cumulative cross-case results</li>
       </ul>
     </div>
   </div>

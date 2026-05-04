@@ -32,7 +32,7 @@
 <div class="wrap">
   <div class="eyebrow">ISO/IEC 29119-4 · WIREFRAMES</div>
   <h1>ISO <em>Detective</em> — Screen Wireframes</h1>
-  <div class="meta">v1 · ITOISQS · 5 screens + evidence-card spec</div>
+  <div class="meta">v2 · ITOISQS · current frontend flow wireframes</div>
 
   <div class="legend">
     <span class="a">amber — interactive / hotspot / CTA</span>
@@ -130,7 +130,7 @@
 
   <h2>3 · Scene Investigation (main loop)</h2>
   <div class="frame">
-    <div class="label">screen-3.investigation · 65/35 split</div>
+    <div class="label">screen-3.investigation · scene + suspect board</div>
     <svg class="wf" viewBox="0 0 1100 600" xmlns="http://www.w3.org/2000/svg">
       <rect width="1100" height="600" fill="#fdfaf3" stroke="#1a1209"/>
       <rect x="20" y="20" width="1060" height="44" fill="none" stroke="#1a1209"/>
@@ -223,7 +223,7 @@
       <rect x="20" y="546" width="180" height="34" fill="#161B22" stroke="#F59E0B"/>
       <text x="110" y="568" text-anchor="middle" font-family="Courier Prime" font-size="11" fill="#F59E0B">📖 ISO FIELD GUIDE</text>
     </svg>
-    <div class="caption">Top bar (case + progress + timer) · 65% scene with 8 amber hotspots · 35% suspect board (evidence ↑ / techniques ↓) · Field Guide pinned bottom-left</div>
+    <div class="caption">Top bar (case + progress + timer) · scene hotspots · suspect board with evidence LEFT and techniques RIGHT · Field Guide pinned bottom-left</div>
   </div>
 
   <div class="grid2">
@@ -252,7 +252,7 @@
     <div>
       <h2>5 · Verdict screen</h2>
       <div class="frame">
-        <div class="label">screen-4.verdict</div>
+        <div class="label">screen-4.verdict (investigation result)</div>
         <svg class="wf" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
           <rect width="600" height="420" fill="#fdfaf3" stroke="#1a1209"/>
           <text x="300" y="44" text-anchor="middle" font-family="Courier Prime" font-size="11" fill="#b45309" letter-spacing="4">VERDICT</text>
@@ -339,7 +339,28 @@
         <text x="580" y="314">MC/DC</text><rect x="640" y="308" width="84" height="6" fill="#EF4444"/><text x="728" y="314">28%</text>
       </g>
     </svg>
-    <div class="caption">Live join/submit counts · score histogram · technique difficulty matrix · sortable student table · "Reveal Answers" CTA</div>
+    <div class="caption">Passcode-gated dashboard · live join/submit stats · score distribution · difficulty matrix · student table</div>
+  </div>
+
+  <h2>7 · Final Summary</h2>
+  <div class="frame">
+    <div class="label">screen-6.final-summary</div>
+    <svg class="wf" viewBox="0 0 1100 320" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1100" height="320" fill="#fdfaf3" stroke="#1a1209"/>
+      <text x="550" y="54" text-anchor="middle" font-family="Playfair Display" font-size="42" font-weight="900">FINAL VERDICT</text>
+      <text x="550" y="80" text-anchor="middle" font-family="Courier Prime" font-size="11" fill="#b45309">Cumulative score across all cases</text>
+      <rect x="360" y="98" width="380" height="86" fill="none" stroke="#F59E0B" stroke-width="2"/>
+      <text x="550" y="134" text-anchor="middle" font-family="Playfair Display" font-size="28" fill="#b45309">CHIEF DETECTIVE · 82%</text>
+      <text x="550" y="160" text-anchor="middle" font-family="Courier Prime" font-size="11">663 / 810 PTS</text>
+      <rect x="170" y="206" width="760" height="88" fill="none" stroke="#1a1209"/>
+      <text x="190" y="232" font-family="Courier Prime" font-size="10">Case</text>
+      <text x="590" y="232" font-family="Courier Prime" font-size="10">Score</text>
+      <text x="740" y="232" font-family="Courier Prime" font-size="10">%</text>
+      <text x="190" y="258" font-family="Playfair Display" font-size="14">TechBank / MedSoft / AeroNav</text>
+      <text x="590" y="258" font-family="Courier Prime" font-size="11">221 · 228 · 214</text>
+      <text x="740" y="258" font-family="Courier Prime" font-size="11">82%</text>
+    </svg>
+    <div class="caption">End-of-run cumulative rank badge + per-case score table + restart/dashboard actions</div>
   </div>
 
 </div>
