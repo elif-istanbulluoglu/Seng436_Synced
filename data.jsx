@@ -173,6 +173,20 @@ const CASES = [
     teaching: "Black-Box techniques — how specification-derived tests prevent financial logic errors.",
     summary: "On November 15th at 02:14, the overnight batch began processing transfers. Eight hours later, 847 customers had funds drained from accounts that should have been frozen, locked, or never permitted to transfer. The dev team called it a one-in-a-million race condition. The audit log calls it something else.",
     hook: "The bank's lead tester swears they ran every test on the plan. The plan is the problem.",
+    suspects: [
+      { id:"s1", name:"Marcus Webb", role:"Lead QA Engineer", gender:"male", guilty:true, guiltReason:"Signed off on the test plan covering only valid inputs. Approved 34% coverage as sufficient.", defense:"I followed standard practice for our team. The requirements document didn't specify invalid input tests.", defenseISO:"EP requires testing invalid partitions, not just valid ones. Approving 34% statement coverage also leaves a large structural gap." },
+      { id:"s2", name:"Priya Nair", role:"Backend Developer", gender:"female", guilty:false, innocentReason:"Priya flagged the missing edge cases in code review, but her concerns were overruled.", defense:"I raised this exact issue in sprint review. I was told we did not have bandwidth.", defenseISO:"Priya's comment aligns with EP requirements. The failure is in test design and release approval." },
+      { id:"s3", name:"Derek Holt", role:"Product Manager", gender:"male", guilty:true, guiltReason:"Cancelled exploratory testing to meet the sprint deadline and dismissed the concurrency warning.", defense:"I made a business decision. Exploratory testing is experience-based, so I treated it as optional.", defenseISO:"Exploratory Testing is a recognized ISO technique, and the concurrency note was a classic Error Guessing signal." },
+      { id:"s4", name:"Sofia Chen", role:"Junior Tester", gender:"female", guilty:false, innocentReason:"Sofia was assigned only the mobile UI module and had no access to the transfer module test plan.", defense:"I tested everything I was assigned. Nobody gave me the payment transfer module.", defenseISO:"Her defense is valid. Scope assignment is a project management responsibility." },
+    ],
+    improvements: [
+      { id:"i1", title:"Add Invalid Partition Tests", icon:"EP", desc:"Extend the test plan to include negative amounts, zero, and over-limit inputs.", iso:"EP - ISO/IEC 29119-4 §5.2.2", pts:15 },
+      { id:"i2", title:"Boundary Value Suite", icon:"BVA", desc:"Create tests for 9,999, 10,000, and 10,001 TL around the transfer cap.", iso:"BVA - ISO/IEC 29119-4 §5.2.3", pts:15 },
+      { id:"i3", title:"Decision Table for Auth Rules", icon:"DT", desc:"Combine authentication, account status, transfer limit, and recipient validity.", iso:"DT - ISO/IEC 29119-4 §5.2.5", pts:15 },
+      { id:"i4", title:"State Transition Matrix", icon:"ST", desc:"Map account states and test valid and invalid transitions.", iso:"ST - ISO/IEC 29119-4 §5.2.6", pts:15 },
+      { id:"i5", title:"Raise Coverage Floor", icon:"STM", desc:"Mandate minimum statement coverage and require both currency conversion branches.", iso:"STM + BT - §5.3.2/5.3.3", pts:10 },
+      { id:"i6", title:"Schedule Exploratory Session", icon:"ET", desc:"Book a chartered exploratory session before release.", iso:"ET - ISO/IEC 29119-4 §5.4.3", pts:10 },
+    ],
     techniques: [
       "equivalence-partitioning", "boundary-value-analysis", "decision-table",
       "state-transition", "branch-testing", "statement-testing",
@@ -275,6 +289,20 @@ const CASES = [
     teaching: "Advanced Black-Box — combinatorial and structured input techniques.",
     summary: "A pediatric ward calculator approved a 47mg dose of a drug whose ceiling is 5mg. The patient survived. Three others did not — their cases trace back over six weeks of approvals nobody flagged. Hospital legal is on line two.",
     hook: "There's a test matrix on the wall. It looks thorough. It is not.",
+    suspects: [
+      { id:"s1", name:"Dr. Anya Patel", role:"Clinical Systems PM", gender:"female", guilty:true, guiltReason:"Approved release without the regulatory checklist.", defense:"As PM, I rely on the QA team's sign-off.", defenseISO:"The checklist gate was her responsibility to require before release." },
+      { id:"s2", name:"Tom Briggs", role:"QA Automation Lead", gender:"male", guilty:true, guiltReason:"Wrote a matrix covering only 15 of 200+ drug combinations and never applied pairwise testing.", defense:"Testing every combination was unrealistic.", defenseISO:"Pairwise testing exists for exactly this problem: broad interaction coverage with fewer tests." },
+      { id:"s3", name:"Rosa Martinez", role:"Nurse Practitioner", gender:"female", guilty:false, innocentReason:"Rosa filed the incident report for the negative dosage defect.", defense:"I included exact reproduction steps. Someone closed it without investigating.", defenseISO:"Her report was a real-world BVA finding; closing it was a quality process failure." },
+      { id:"s4", name:"Jin-Ho Park", role:"DevOps Engineer", gender:"male", guilty:false, innocentReason:"The bypass flag was inserted by the test team, not DevOps.", defense:"I set up the environment per the runbook. The bypass flag was a QA config change.", defenseISO:"The git history points to a test state/design failure, not DevOps setup." },
+    ],
+    improvements: [
+      { id:"i1", title:"Full Pairwise Drug Matrix", icon:"PW", desc:"Generate drug, route, and weight combinations that cover all two-way interactions.", iso:"Pairwise - ISO/IEC 29119-4 §5.2.4", pts:15 },
+      { id:"i2", title:"Complete Classification Tree", icon:"CTM", desc:"Assign tests to every patient classification leaf.", iso:"CTM - ISO/IEC 29119-4 §5.2.8", pts:15 },
+      { id:"i3", title:"Cause-Effect Allergy Graph", icon:"CEG", desc:"Model allergy flag plus dosage conditions as a boolean cause-effect graph.", iso:"CEG - ISO/IEC 29119-4 §5.2.7", pts:15 },
+      { id:"i4", title:"Negative Boundary Tests", icon:"BVA", desc:"Add tests at and around zero and the dosage ceiling.", iso:"BVA - ISO/IEC 29119-4 §5.2.3", pts:15 },
+      { id:"i5", title:"Mandatory Release Checklist", icon:"CBT", desc:"Require the regulatory checklist before sign-off.", iso:"CBT - ISO/IEC 29119-4 §5.4.4", pts:10 },
+      { id:"i6", title:"Allergy Branch Coverage", icon:"BT", desc:"Require branch coverage for the allergy-check module.", iso:"BT - ISO/IEC 29119-4 §5.3.3", pts:10 },
+    ],
     techniques: [
       "equivalence-partitioning", "boundary-value-analysis", "pairwise",
       "classification-tree", "cause-effect", "checklist-based",
@@ -397,6 +425,20 @@ const CASES = [
     teaching: "White-Box techniques — structural coverage for safety-critical systems.",
     summary: "Twenty-three commercial flights received corrupted geofence data. None crashed. Two diverted. The black-box recordings show the same line of code firing differently across identical conditions. The cert paperwork claims DO-178C compliance. The git history says otherwise.",
     hook: "The avionics binder is thick. The MC/DC matrix inside is empty.",
+    suspects: [
+      { id:"s1", name:"Col. Ray Dawes", role:"Avionics Cert. Manager", gender:"male", guilty:true, guiltReason:"Approved Level A software with an empty MC/DC matrix.", defense:"My role is to confirm the form was submitted, not audit every cell.", defenseISO:"Certification requires evidence that MC/DC was achieved, not just that a form exists." },
+      { id:"s2", name:"Yuki Tanaka", role:"Navigation Software Engineer", gender:"female", guilty:true, guiltReason:"Wrote 12 unit tests that all traversed the same execution path.", defense:"The backup inertial path is only for failure scenarios.", defenseISO:"Safety-critical software demands coverage precisely because failure paths matter most." },
+      { id:"s3", name:"Obi Mensah", role:"Flight Test Pilot", gender:"male", guilty:false, innocentReason:"Obi reported the geofence anomaly during trials.", defense:"I reported the anomaly twice and was told it was environmental interference.", defenseISO:"The failure was engineering's dismissal of empirical evidence." },
+      { id:"s4", name:"Carla Diaz", role:"Regulatory Liaison", gender:"female", guilty:false, innocentReason:"Carla repeatedly requested the completed MC/DC matrix and escalated the missing evidence.", defense:"I sent follow-ups and escalated. I cannot force engineering to respond.", defenseISO:"She identified missing MC/DC evidence and followed the process." },
+    ],
+    improvements: [
+      { id:"i1", title:"Complete the MC/DC Matrix", icon:"MCDC", desc:"Prove each safety-critical condition independently affects the decision outcome.", iso:"MC/DC - ISO/IEC 29119-4 §5.3.5", pts:20 },
+      { id:"i2", title:"Cover Backup Block", icon:"STM", desc:"Ensure every line of the backup inertial block is executed by tests.", iso:"STM - ISO/IEC 29119-4 §5.3.2", pts:15 },
+      { id:"i3", title:"False-Branch Tests", icon:"BT", desc:"Add explicit tests for false branches in navigation decisions.", iso:"BT - ISO/IEC 29119-4 §5.3.3", pts:15 },
+      { id:"i4", title:"Longitude Boundary Values", icon:"BVA", desc:"Test values at and around the +/-180 degree wraparound.", iso:"BVA - ISO/IEC 29119-4 §5.2.3", pts:15 },
+      { id:"i5", title:"Enforce Cert Checklist", icon:"CBT", desc:"Block release unless checklist evidence is complete.", iso:"CBT - ISO/IEC 29119-4 §5.4.4", pts:10 },
+      { id:"i6", title:"Diversify Unit Paths", icon:"PT", desc:"Require tests to traverse multiple execution paths.", iso:"PT - ISO/IEC 29119-4 §5.3.6", pts:10 },
+    ],
     techniques: [
       "statement-testing", "branch-testing", "condition-testing",
       "mcdc", "path-testing", "boundary-value-analysis",

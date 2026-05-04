@@ -32,6 +32,21 @@ const playStamp = (m) => { playTone(m, 80, 0.18, "sawtooth", 0.12); setTimeout((
 const playCorrect = (m) => { playTone(m, 660, 0.1, "sine", 0.06); setTimeout(()=>playTone(m, 880, 0.14, "sine", 0.06), 80); };
 const playWrong = (m) => { playTone(m, 180, 0.18, "sawtooth", 0.08); setTimeout(()=>playTone(m, 130, 0.22, "sawtooth", 0.07), 60); };
 const playReveal = (m) => { for (let i=0;i<5;i++) setTimeout(()=>playTone(m, 220+i*110, 0.12, "triangle", 0.05), i*80); };
+const playSiren = (m) => {
+  if (m) return;
+  try {
+    const ctx = AudioCtx.get();
+    for (let i=0;i<3;i++) setTimeout(()=>{
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = "sawtooth";
+      o.frequency.setValueAtTime(440+i*80, ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(880+i*80, ctx.currentTime+0.3);
+      g.gain.value = 0.04;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime+0.35);
+    }, i*400);
+  } catch(e) {}
+};
 
 // rain looped via filtered noise (created on demand)
 const useRain = (muted) => {
@@ -66,9 +81,9 @@ const useRain = (muted) => {
 // ---------- VFX OVERLAY ----------
 const FilmGrain = () => <div className="vfx-grain" />;
 const Vignette = () => <div className="vfx-vignette" />;
-const Rain = () => (
+const Rain = ({ count = 80 } = {}) => (
   <div className="vfx-rain">
-    {Array.from({length: 80}).map((_, i) => (
+    {Array.from({length: count}).map((_, i) => (
       <span key={i} style={{
         left: `${Math.random()*100}%`,
         animationDelay: `${Math.random()*-3}s`,
@@ -78,9 +93,9 @@ const Rain = () => (
     ))}
   </div>
 );
-const Particles = () => (
+const Particles = ({ count = 24 } = {}) => (
   <div className="vfx-particles">
-    {Array.from({length: 24}).map((_, i) => (
+    {Array.from({length: count}).map((_, i) => (
       <span key={i} style={{
         left: `${Math.random()*100}%`,
         top: `${Math.random()*100}%`,
@@ -358,13 +373,13 @@ const SuspectBoard = ({ caseData, collected, links, linking, setLinking,
       <div className="board__head">
         <h3>Suspect Board</h3>
         <div className="board__hint">{linking
-          ? "Now click the technique that should have caught it."
-          : "Click a hotspot, then pick a technique to link evidence."}</div>
+          ? "Now click the technique that caused this failure."
+          : "Click a card, then select the missing technique."}</div>
       </div>
       <div className="board__layout">
         <div className="board__evidence">
           <div className="board__sect">EVIDENCE</div>
-          {collected.length === 0 && <div className="board__empty">— no evidence yet —</div>}
+          {collected.length === 0 && <div className="board__empty">— investigate the scene —</div>}
           {collected.map(c => {
             const h = caseData.hotspots.find(x=>x.id===c.hotspotId);
             const link = links[h.id];
@@ -394,7 +409,7 @@ const SuspectBoard = ({ caseData, collected, links, linking, setLinking,
                 className={`tech ${used?"is-used":""} ${linking?"is-pickable":""}`}
                 disabled={!linking}
                 onClick={() => linking && onLink(linking, t.id)}>
-                <div className="tech__cat tech__cat--{t.category.toLowerCase().split('-')[0]}">{t.category}</div>
+                <div className="tech__cat">{t.category}</div>
                 <div className="tech__name">{t.name}</div>
                 <div className="tech__short">{t.short} · {t.iso.split("§")[1]}</div>
               </button>
@@ -427,17 +442,15 @@ const FeedbackModal = ({ kind, h, techId, correctId, trapMsg, points, onClose })
         ) : (
           <>
             <div className="modal__stamp modal__stamp--red">WRONG LEAD</div>
-            <h3>Not quite, Detective.</h3>
+            <h3>Not the right technique, Detective.</h3>
             <p className="modal__lead">
-              You picked <b>{tech.name}</b>. The evidence points to <b>{correct.name}</b>.
+              You picked <b>{tech.name}</b>.
             </p>
-            <p className="modal__why">{trapMsg}</p>
-            <div className="modal__pair">
-              <div>
-                <div className="modal__pair-h">Why {correct.short}?</div>
-                <p>{correct.definition}</p>
-                <small>{correct.iso}</small>
-              </div>
+            <div className="modal__why">
+              <div className="modal__hint-label">DETECTIVE'S HINT:</div>
+              {trapMsg}
+            </div>
+            <div className="modal__not">
               <div>
                 <div className="modal__pair-h">Why not {tech.short}?</div>
                 <p>{tech.definition}</p>
@@ -491,7 +504,7 @@ const FieldGuide = ({ open, onClose }) => {
 };
 
 // ---------- VERDICT ----------
-const Verdict = ({ caseData, state, score, onNext, isLast, animationsOn, muted, onDashboard }) => {
+const Verdict = ({ caseData, state, score, onNextStep, animationsOn, muted }) => {
   const [showCount, setShowCount] = useState(0);
   const max = caseData.hotspots.length * 15 + 20 + 10;
   const pct = Math.round((score / max) * 100);
@@ -553,22 +566,208 @@ const Verdict = ({ caseData, state, score, onNext, isLast, animationsOn, muted, 
         </div>
       </div>
       <div className="verdict__actions">
-        {!isLast && <button className="btn btn--primary" onClick={onNext}>Next case →</button>}
-        {isLast && <button className="btn btn--primary" onClick={onNext}>Final verdict →</button>}
-        <button className="btn btn--ghost" onClick={onDashboard}>Teacher dashboard</button>
+        <button className="btn btn--primary" onClick={onNextStep}>Identify the culprit →</button>
       </div>
     </div>
   );
 };
 
-const FinalSummary = ({ scores, onRestart, onDashboard, animationsOn, muted }) => {
+const AvatarBadge = ({ suspect, mood = "neutral" }) => {
+  const initials = suspect.name.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase();
+  return <div className={`avatar avatar--${suspect.gender || "neutral"} avatar--${mood}`}><span>{initials}</span></div>;
+};
+
+const SuspectIdentification = ({ caseData, score, onArrest }) => {
+  const [selected, setSelected] = useState([]);
+  const [revealed, setRevealed] = useState(false);
+  const [showDefense, setShowDefense] = useState(null);
+  const suspects = caseData.suspects || [];
+  const guiltySuspects = suspects.filter(s => s.guilty);
+  const max = caseData.hotspots.length * 15 + 20 + 10;
+  const pct = Math.round((score / max) * 100);
+
+  const toggleSelect = (id) => {
+    if (revealed) return;
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleProceed = () => {
+    const guiltyIds = guiltySuspects.map(s => s.id);
+    const correctCount = selected.filter(id => guiltyIds.includes(id)).length;
+    const wrongCount = selected.filter(id => !guiltyIds.includes(id)).length;
+    const bonus = Math.max(0, (correctCount * 10) - (wrongCount * 5));
+    onArrest({ bonus, guiltySelected: suspects.filter(s => selected.includes(s.id) && s.guilty) });
+  };
+
+  return (
+    <div className="screen screen--suspects">
+      <div className="suspects__head">
+        <div className="suspects__eyebrow">CASE {caseData.code} · STEP 2 OF 3</div>
+        <h1>Identify the <em>Culprit</em></h1>
+        <p>Study the personnel files. Your investigation found <b>{pct}%</b> of the evidence.</p>
+      </div>
+      {showDefense && (
+        <div className="modal-shade" onClick={()=>setShowDefense(null)}>
+          <div className="modal modal--defense" onClick={e=>e.stopPropagation()}>
+            <div className="modal__hint-label">DEFENDANT'S STATEMENT</div>
+            <h3>{showDefense.name}</h3>
+            <p className="defense-quote">"{showDefense.defense}"</p>
+            <div className="modal__why"><div className="modal__hint-label">ISO ANALYSIS:</div>{showDefense.defenseISO}</div>
+            <button className="btn btn--ghost" onClick={()=>setShowDefense(null)}>Close</button>
+          </div>
+        </div>
+      )}
+      {!revealed && (
+        <div className="suspects__instruction">
+          {guiltySuspects.length > 1 ? `SELECT ALL RESPONSIBLE PARTIES (${guiltySuspects.length} SUSPECTS)` : "SELECT THE RESPONSIBLE PARTY"}
+        </div>
+      )}
+      <div className="suspect-grid">
+        {suspects.map(s => {
+          const isSelected = selected.includes(s.id);
+          return (
+            <div key={s.id} className="suspect-wrap">
+              <button className={`suspect-card ${isSelected ? "is-selected" : ""}`} onClick={()=>toggleSelect(s.id)}>
+                {isSelected && !revealed && <span className="suspect-card__check">✓</span>}
+                {revealed && <span className={`suspect-card__stamp ${s.guilty ? "is-guilty" : "is-clear"}`}>{s.guilty ? "GUILTY" : "INNOCENT"}</span>}
+                <AvatarBadge suspect={s} mood={revealed && s.guilty ? "guilty" : "neutral"} />
+                <div className="suspect-card__body">
+                  <div className="suspect-card__name">{s.name}</div>
+                  <div className="suspect-card__role">{s.role}</div>
+                  {revealed && <div className={`suspect-card__reason ${s.guilty ? "is-guilty" : "is-clear"}`}>{s.guilty ? s.guiltReason : s.innocentReason}</div>}
+                </div>
+              </button>
+              <button className="defense-btn" onClick={()=>setShowDefense(s)}>Hear defense</button>
+            </div>
+          );
+        })}
+      </div>
+      <div className="suspects__actions">
+        {!revealed ? (
+          <>
+            <div className="suspects__selected">Selected: <b>{selected.length}</b></div>
+            <button className="btn btn--primary" disabled={selected.length === 0} onClick={()=>setRevealed(true)}>Lock In Suspects</button>
+          </>
+        ) : (
+          <>
+            <div className="suspects__quote">"Every failure has an author. Now you know who signed this one."</div>
+            <button className="btn btn--primary" onClick={handleProceed}>Make the arrest →</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ArrestScreen = ({ caseData, guiltySelected, bonus, onContinue, muted }) => {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(()=>setStep(1), 500);
+    const t2 = setTimeout(()=>{ setStep(2); playSiren(muted); }, 1400);
+    const t3 = setTimeout(()=>setStep(3), 3400);
+    return () => [t1,t2,t3].forEach(clearTimeout);
+  }, []);
+
+  const displayed = guiltySelected.length > 0 ? guiltySelected : (caseData.suspects || []).filter(s => s.guilty);
+  return (
+    <div className="arrest-screen">
+      <div className="arrest-lights"/>
+      <Rain count={50}/>
+      <div className={`arrest-title ${step>=1 ? "is-in" : ""}`}>CASE CLOSED</div>
+      {step >= 1 && (
+        <svg className="police-car" viewBox="0 0 360 130" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="180" cy="125" rx="160" ry="12" fill="rgba(59,130,246,0.22)"/>
+          <rect x="20" y="52" width="320" height="58" rx="8" fill="#16213e"/>
+          <rect x="40" y="28" width="240" height="48" rx="10" fill="#1a2540"/>
+          <rect x="52" y="32" width="75" height="36" rx="5" fill="#0f3460" opacity="0.85"/>
+          <rect x="143" y="32" width="75" height="36" rx="5" fill="#0f3460" opacity="0.85"/>
+          <rect x="234" y="32" width="46" height="36" rx="5" fill="#0f3460" opacity="0.85"/>
+          <rect x="85" y="22" width="190" height="10" rx="3" fill="#2a2a3e"/>
+          <rect x="92" y="24" width="35" height="6" rx="1" fill="#EF4444"/>
+          <rect x="233" y="24" width="35" height="6" rx="1" fill="#3B82F6"/>
+          <text x="180" y="76" textAnchor="middle" fontFamily="'Special Elite',monospace" fontSize="13" fill="#F59E0B" letterSpacing="5">POLICE</text>
+          <circle cx="85" cy="110" r="17" fill="#0a0a14" stroke="#2a3050" strokeWidth="2"/>
+          <circle cx="275" cy="110" r="17" fill="#0a0a14" stroke="#2a3050" strokeWidth="2"/>
+        </svg>
+      )}
+      {step >= 2 && (
+        <div className="jail-row">
+          {displayed.map((s, idx)=>(
+            <div key={s.id} className="jail-card" style={{ animationDelay: `${idx*0.18}s` }}>
+              <div className="jail-cell">
+                <div className="jail-bars">{Array.from({length:5}).map((_, i)=><span key={i}/>)}</div>
+                <AvatarBadge suspect={s} mood="guilty"/>
+                <div className="jail-card__name">{s.name}</div>
+                <div className="jail-card__role">{s.role}</div>
+              </div>
+              <div className="jail-card__quote">"{s.guiltReason.split(".")[0]}."</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {bonus > 0 && step >= 2 && <div className="arrest-bonus">+{bonus} BONUS — Correct identification</div>}
+      {step >= 3 && <button className="btn btn--primary arrest-next" onClick={onContinue}>Improve the case →</button>}
+    </div>
+  );
+};
+
+const CaseImprovement = ({ caseData, totalScore, maxScore, onNext, isLast }) => {
+  const [selected, setSelected] = useState([]);
+  const improvements = caseData.improvements || [];
+  const maxSelect = 3;
+  const toggle = (id) => setSelected(prev => {
+    if (prev.includes(id)) return prev.filter(x => x !== id);
+    if (prev.length >= maxSelect) return prev;
+    return [...prev, id];
+  });
+  const bonusPts = selected.reduce((sum, id) => sum + (improvements.find(i=>i.id===id)?.pts || 0), 0);
+  const currentPct = Math.round((totalScore / maxScore) * 100);
+  return (
+    <div className="screen screen--improve">
+      <div className="improve__head">
+        <div className="improve__eyebrow">CASE {caseData.code} · STEP 3 OF 3</div>
+        <h1>Improve the <em>Test Suite</em></h1>
+        <p className="improve__subtitle">The culprit is behind bars. Select up to <b>3 improvements</b> to prevent the next failure.</p>
+      </div>
+      <div className="improve__instruction">SELECT UP TO 3 IMPROVEMENTS · {selected.length}/{maxSelect}</div>
+      <div className="improve__grid">
+        {improvements.map(imp => {
+          const isSelected = selected.includes(imp.id);
+          return (
+            <button key={imp.id} className={`improve-card ${isSelected ? "is-selected" : ""}`} onClick={()=>toggle(imp.id)}>
+              <div className="improve-card__icon">{imp.icon}</div>
+              <div className="improve-card__title">{imp.title}</div>
+              <div className="improve-card__desc">{imp.desc}</div>
+              <div className="improve-card__iso">{imp.iso}</div>
+              <div className="improve-card__pts">+{imp.pts} pts</div>
+            </button>
+          );
+        })}
+      </div>
+      <div className="improve__score-preview">
+        <div className="improve__score-label">Current Performance</div>
+        <div className="improve__score-val">{currentPct}%</div>
+        <div className="improve__bonus">{selected.length > 0 ? `+${bonusPts} improvement bonus available` : "Select improvements to earn bonus points"}</div>
+      </div>
+      <div className="improve__actions">
+        <button className="btn btn--primary" onClick={()=>onNext(bonusPts)}>{isLast ? "Final verdict →" : "Next case →"}</button>
+      </div>
+    </div>
+  );
+};
+
+const FinalSummary = ({ scores, name, onRestart, onDashboard, animationsOn, muted }) => {
   const total = scores.reduce((a,b)=>a+b.score, 0);
   const totalMax = scores.reduce((a,b)=>a+b.max, 0);
   const pct = Math.round((total/totalMax)*100);
   const rank = rankFor(pct);
   return (
     <div className="screen screen--verdict screen--final">
-      <div className="verdict__head"><h1>FINAL VERDICT</h1></div>
+      <div className="verdict__head">
+        <div className="verdict__case">ISO DETECTIVE · COMPLETE CASE FILE</div>
+        <h1>FINAL VERDICT</h1>
+        {name && <div className="final-detective">Detective {name}</div>}
+      </div>
       <div className={`rank-badge rank-badge--big ${animationsOn?"in":""}`}>
         <div className="rank-badge__glyph">{rank.glyph}</div>
         <div className="rank-badge__label">{rank.label}</div>
@@ -577,15 +776,20 @@ const FinalSummary = ({ scores, onRestart, onDashboard, animationsOn, muted }) =
         <div className="rank-badge__quote">"{rank.quote}"</div>
       </div>
       <table className="case-table">
-        <thead><tr><th>Case</th><th>Score</th><th>%</th></tr></thead>
+        <thead><tr><th>Case</th><th>Score</th><th>%</th><th>Rank</th></tr></thead>
         <tbody>
-          {scores.map(s => (
-            <tr key={s.id}>
-              <td>{s.title}</td>
-              <td>{s.score} / {s.max}</td>
-              <td>{Math.round((s.score/s.max)*100)}%</td>
-            </tr>
-          ))}
+          {scores.map(s => {
+            const p = Math.round((s.score/s.max)*100);
+            const r = rankFor(p);
+            return (
+              <tr key={s.id}>
+                <td>{s.title}</td>
+                <td>{s.score} / {s.max}</td>
+                <td>{p}%</td>
+                <td>{r.glyph} {r.label}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div className="verdict__actions">
@@ -737,12 +941,13 @@ const App = () => {
   const [t, setTweak] = window.useTweaks
     ? window.useTweaks(TWEAK_DEFAULTS)
     : [TWEAK_DEFAULTS, ()=>{}];
-  const [view, setView] = useState("landing"); // landing | case | invest | verdict | final | dashboard
+  const [view, setView] = useState("landing"); // landing | case | invest | verdict | suspect | arrest | improve | final | dashboard
   const [caseIdx, setCaseIdx] = useState(0);
   const [muted, setMuted] = useState(true);
   const [name, setName] = useState("");
   const [scores, setScores] = useState([]);
   const [investState, setInvestState] = useState(initState());
+  const [arrestData, setArrestData] = useState(null);
 
   useRain(muted || !t.rain);
 
@@ -768,14 +973,33 @@ const App = () => {
     if (caseIdx < CASES.length - 1) {
       setCaseIdx(caseIdx+1);
       setInvestState(initState());
+      setArrestData(null);
       setView("case");
     } else {
       setView("final");
     }
   };
 
+  const handleArrest = ({ bonus, guiltySelected }) => {
+    setArrestData({ bonus, guiltySelected });
+    playSiren(muted);
+    setView("arrest");
+  };
+
+  const afterArrest = () => {
+    if (arrestData?.bonus > 0) {
+      setScores(prev => prev.map((s, i) => i === prev.length - 1 ? {...s, score:s.score + arrestData.bonus} : s));
+    }
+    setView("improve");
+  };
+
+  const afterImprovement = (improveBonus) => {
+    setScores(prev => prev.map((s, i) => i === prev.length - 1 ? {...s, score:s.score + improveBonus, max:s.max + 60} : s));
+    nextCase();
+  };
+
   const restart = () => {
-    setCaseIdx(0); setInvestState(initState()); setScores([]); setView("landing");
+    setCaseIdx(0); setInvestState(initState()); setScores([]); setArrestData(null); setView("landing");
   };
 
   const lastScore = scores[scores.length-1];
@@ -800,12 +1024,29 @@ const App = () => {
       )}
       {view === "verdict" && lastScore && (
         <Verdict caseData={caseData} state={investState} score={lastScore.score}
-          onNext={nextCase} isLast={caseIdx === CASES.length-1}
-          animationsOn={t.animationsOn} muted={muted}
-          onDashboard={()=>setView("dashboard")}/>
+          onNextStep={()=>setView("suspect")}
+          animationsOn={t.animationsOn} muted={muted}/>
+      )}
+      {view === "suspect" && lastScore && (
+        <SuspectIdentification caseData={caseData} score={lastScore.score}
+          onArrest={handleArrest}/>
+      )}
+      {view === "arrest" && (
+        <ArrestScreen caseData={caseData}
+          guiltySelected={arrestData?.guiltySelected || []}
+          bonus={arrestData?.bonus || 0}
+          onContinue={afterArrest}
+          muted={muted}/>
+      )}
+      {view === "improve" && lastScore && (
+        <CaseImprovement caseData={caseData}
+          totalScore={lastScore.score}
+          maxScore={lastScore.max}
+          onNext={afterImprovement}
+          isLast={caseIdx === CASES.length-1}/>
       )}
       {view === "final" && (
-        <FinalSummary scores={scores} onRestart={restart}
+        <FinalSummary scores={scores} name={name} onRestart={restart}
           onDashboard={()=>setView("dashboard")}
           animationsOn={t.animationsOn} muted={muted}/>
       )}
