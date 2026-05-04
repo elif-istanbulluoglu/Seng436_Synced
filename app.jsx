@@ -122,9 +122,10 @@ const rankFor = (pct) => RANKS.find(r => pct >= r.min && pct <= r.max) || RANKS[
 
 // ---------- SCREENS ----------
 
-const Landing = ({ onStart, muted, setMuted, onTeacher }) => {
-  const [code, setCode] = useState("TB-2024");
+const Landing = ({ onStart, onTeacher }) => {
+  const [selectedCase, setSelectedCase] = useState(0);
   const [name, setName] = useState("");
+  const pickedCase = CASES[selectedCase];
   return (
     <div className="screen screen--landing">
       <Rain />
@@ -167,35 +168,39 @@ const Landing = ({ onStart, muted, setMuted, onTeacher }) => {
           <h1 className="landing__title">ISO <span>Detective</span></h1>
           <p className="landing__tag">A noir investigation into the test techniques that weren't run.</p>
         </div>
+
+        <section className="landing__select" aria-label="Select your case">
+          <div className="landing__section-title">SELECT YOUR CASE</div>
+          <div className="landing__cases">
+            {CASES.map((c, i) => (
+              <button
+                key={c.id}
+                className={`case-thumb ${selectedCase === i ? "is-selected" : ""}`}
+                onClick={() => setSelectedCase(i)}
+              >
+                {selectedCase === i && <div className="case-thumb__selected">SELECTED</div>}
+                <div className="case-thumb__code">{c.code}</div>
+                <div className="case-thumb__title">{c.title}</div>
+                <div className="case-thumb__meta">{c.severity} · {c.affectedUsers.toLocaleString()} affected</div>
+                <div className="case-thumb__teaching">{c.teaching}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+
         <div className="landing__form">
-          <label>
-            <span>Case code</span>
-            <input value={code} onChange={e=>setCode(e.target.value.toUpperCase())}
-              maxLength={8} placeholder="TB-2024"/>
-          </label>
           <label>
             <span>Detective name</span>
             <input value={name} onChange={e=>setName(e.target.value)}
               placeholder="Det. Yılmaz" maxLength={28}/>
           </label>
           <div className="landing__actions">
-            <button className="btn btn--primary" onClick={()=>onStart(name || "Detective")}>
-              Open the file →
-            </button>
-            <button className={`btn btn--ghost ${muted?"":"is-on"}`} onClick={()=>setMuted(!muted)}>
-              {muted ? "♪ Sound off" : "♪ Sound on"}
+            <button className="btn btn--primary" onClick={()=>onStart(name || "Detective", selectedCase)}>
+              Open the file — {pickedCase.code} →
             </button>
           </div>
         </div>
-        <div className="landing__cases">
-          {CASES.map(c => (
-            <div key={c.id} className="case-thumb">
-              <div className="case-thumb__code">{c.code}</div>
-              <div className="case-thumb__title">{c.title}</div>
-              <div className="case-thumb__meta">{c.severity} · {c.affectedUsers} affected</div>
-            </div>
-          ))}
-        </div>
+
         <div className="landing__foot">
           <span>ITOISQS · Software Quality Standards</span>
           <button className="link" onClick={onTeacher}>Teacher access →</button>
@@ -220,7 +225,7 @@ const CaseFileOpen = ({ caseData, onBegin, animationsOn, muted }) => {
       <div className={`folder ${stage>=1?"is-down":""} ${animationsOn?"":"no-anim"}`}>
         <div className="folder__tab">{caseData.code}</div>
         <div className="folder__cover">
-          <div className={`stamp ${stage>=1?"is-on":""}`}>CLASSIFIED</div>
+          <div className={`stamp stamp--classified ${stage>=1?"is-on":""}`}>CLASSIFIED</div>
           <div className="folder__title">CASE FILE</div>
           <div className="folder__company">{caseData.company}</div>
         </div>
@@ -954,7 +959,13 @@ const App = () => {
   const caseData = CASES[caseIdx];
   const dispatch = (a) => setInvestState(s => reducer(s,a));
 
-  const startGame = (n) => { setName(n); setView("case"); };
+  const startGame = (n, selectedCaseIdx = 0) => {
+    setName(n);
+    setCaseIdx(selectedCaseIdx);
+    setInvestState(initState());
+    setArrestData(null);
+    setView("case");
+  };
 
   const completeInvestigation = ({ timeBonus }) => {
     const linkPoints = Object.values(investState.links).reduce((a,l)=>a+(l.points||0),0);
@@ -1010,7 +1021,7 @@ const App = () => {
       <Vignette/>
       {t.particles && view!=="landing" && <Particles/>}
       {view === "landing" && (
-        <Landing onStart={startGame} muted={muted} setMuted={setMuted} onTeacher={()=>setView("dashboard")}/>
+        <Landing onStart={startGame} onTeacher={()=>setView("dashboard")}/>
       )}
       {view === "case" && (
         <CaseFileOpen caseData={caseData} animationsOn={t.animationsOn} muted={muted}

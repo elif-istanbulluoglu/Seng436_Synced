@@ -111,8 +111,11 @@ body { background:
 .landing__tag { color: var(--text-2); font-family: var(--mono); margin-top: 18px;
   font-size: 14px; letter-spacing: 0.05em; }
 
+.landing__select { width: 100%; }
+.landing__section-title { font-family: var(--mono); color: var(--amber); letter-spacing: 0.25em;
+  font-size: 11px; margin-bottom: 16px; text-align: center; }
 .landing__form { background: rgba(13,17,23,0.85); border: 1px solid var(--line);
-  padding: 28px; max-width: 520px; margin: 0 auto; width: 100%;
+  padding: 28px; max-width: 480px; margin: 0 auto; width: 100%;
   backdrop-filter: blur(8px); }
 .landing__form label { display: block; margin-bottom: 16px; }
 .landing__form span { display: block; font-family: var(--mono); font-size: 11px;
@@ -125,15 +128,21 @@ body { background:
 .landing__actions .btn { flex: 1; }
 
 .landing__cases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.case-thumb { background: rgba(13,17,23,0.7); border: 1px solid var(--line); padding: 20px;
-  transition: all 200ms ease; }
-.case-thumb:hover { border-color: var(--amber); }
+.case-thumb { position: relative; background: rgba(13,17,23,0.7); border: 2px solid var(--line);
+  padding: 20px; transition: all 200ms ease; text-align: left; color: var(--text); cursor: pointer; }
+.case-thumb:hover { border-color: rgba(245,158,11,0.7); transform: translateY(-2px); }
+.case-thumb.is-selected { background: rgba(245,158,11,0.12); border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.08); }
+.case-thumb__selected { position: absolute; top: 8px; right: 8px; font-family: var(--mono);
+  font-size: 10px; color: var(--amber); letter-spacing: 0.15em; }
 .case-thumb__code { font-family: var(--mono); color: var(--amber); letter-spacing: 0.2em;
   font-size: 11px; }
-.case-thumb__title { font-family: var(--serif); font-size: 20px; margin-top: 8px;
+.case-thumb__title { font-family: var(--serif); font-size: 18px; margin-top: 8px;
   line-height: 1.2; }
 .case-thumb__meta { font-family: var(--mono); font-size: 10px; color: var(--text-3);
   letter-spacing: 0.1em; margin-top: 8px; text-transform: uppercase; }
+.case-thumb__teaching { font-family: var(--mono); font-size: 11px; color: var(--text-2);
+  margin-top: 8px; line-height: 1.5; }
 
 .landing__foot { display: flex; justify-content: space-between; align-items: center;
   padding-top: 24px; border-top: 1px solid var(--line);
@@ -184,8 +193,14 @@ body { background:
   letter-spacing: 0.1em; padding: 8px 18px; border: 4px double var(--red);
   transform: rotate(-12deg) scale(0); opacity: 0;
   text-shadow: 0 0 6px rgba(239,68,68,0.4); }
+.stamp--classified { top: 24px; right: 60px; color: #fff; font-size: 28px;
+  letter-spacing: 0.12em; padding: 6px 16px; border: 4px double #fff;
+  background: rgba(139,26,26,0.85); transform: rotate(-10deg) scale(0);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2); }
 .stamp.is-on { animation: stampIn 500ms cubic-bezier(.34,1.56,.64,1) forwards; }
 .folder.no-anim .stamp { transform: rotate(-12deg) scale(1); opacity: 0.85; }
+.folder.no-anim .stamp--classified { transform: rotate(-10deg) scale(1); opacity: 0.95; }
 @keyframes stampIn {
   0% { transform: rotate(20deg) scale(2); opacity: 0; }
   60% { transform: rotate(-15deg) scale(0.92); opacity: 1; }
